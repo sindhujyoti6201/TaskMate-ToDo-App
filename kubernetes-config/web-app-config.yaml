@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+  labels:
+    app: taskmate-todo-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskmate-todo-app
+  template:
+    metadata:
+      labels:
+        app: taskmate-todo-app
+    spec:
+      containers:
+      - name: web-app
+        image: sidutta/taskmate-todo-app:v1
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MONGO_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-express-config
+              key: mongo-host
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-express-config
+              key: mongo-port
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: secret-config
+              key: mongo-root-username
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secret-config
+              key: mongo-root-password
+
+
+---
+# This is the service for the webapp
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+spec:
+  selector:
+    matchLabels:
+      app: taskmate-todo-app
+    ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+      nodePort: 30001
+  type: LoadBalancer
