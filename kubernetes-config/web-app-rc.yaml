@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: web-app-rc
+spec:
+  replicas: 2 
+  selector:
+    app: taskmate-todo-app 
+  template:
+    metadata:
+      labels:
+        app: taskmate-todo-app 
+    spec:
+      containers:
+      - name: web-app
+        image: sidutta/taskmate-app:v3
+        ports:
+        - containerPort: 5001
+        env:
+        - name: MONGO_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-express-config
+              key: mongo-host
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-express-config
+              key: mongo-port
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: secret-config
+              key: mongo-root-username
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secret-config
+              key: mongo-root-password
