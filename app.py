@@ -131,7 +131,9 @@ if __name__ == "__main__":
 	env = os.environ.get('FLASK_ENV', 'development')
 	port = int(os.environ.get('PORT', 5000))
 	debug = False if env == 'production' else True
-	print("Starting the app in %s mode on port %d" % env % port)
+	# Adding one more print statement to create a new version
+	print("This is the new version of the app")
+	print(f"Starting the app in {env} mode on port {port}")
 	# app.run(debug=True)
  
 	""" I have to add the host parameter to make it accessible from outside the container """
