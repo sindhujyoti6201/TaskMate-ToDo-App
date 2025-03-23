@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: example-alert-rules
+  namespace: prometheus
+spec:
+  groups:
+    - name: taskmate-alerts
+      rules:
+      - alert: TaskmatePodMissing
+        expr: count(kube_pod_info{pod="taskmate-app"}) == 0
+        for: 15s  # Keep the alert firing for 15 seconds (adjust as needed)
+        annotations:
+          summary: "Taskmate pod is missing"
+      - alert: TaskmatePodRestarting
+        expr: rate(kube_pod_container_status_restarts_total{pod="taskmate-app"}[1m]) > 2
+        for: 15s  # Alert if there are more than 2 restarts in 1 minute
+        annotations:
+          summary: "Taskmate pod is restarting frequently"

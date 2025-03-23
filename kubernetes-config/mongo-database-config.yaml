@@ -6,6 +6,12 @@ metadata:
     app: mongo-database
 spec:
   replicas: 1
+  revisionHistoryLimit: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: mongo-database
@@ -15,28 +21,29 @@ spec:
         app: mongo-database
     spec:
       containers:
-      - name: mongo-database
-        image: mongo
-        ports:
-        - containerPort: 27017
-        # volumeMounts:
-        # - name: mongo-database-storage
-        #   mountPath: /data/db
-        env:
-        - name: MONGO_INITDB_ROOT_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: secret-config
-              key: mongo-root-username
-        - name: MONGO_INITDB_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: secret-config
-              key: mongo-root-password
+        - name: mongo-database
+          image: mongo
+          ports:
+            - containerPort: 27017
+          # volumeMounts:
+          #   - name: mongo-storage
+          #     mountPath: /data/db
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: secret-config
+                  key: mongo-root-username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret-config
+                  key: mongo-root-password
       # volumes:
-      # - name: mongo-database-storage
-      #   persistentVolumeClaim:
-      #     claimName: mongo-database-pvc
+      #   - name: mongo-storage
+      #     persistentVolumeClaim:
+      #       claimName: mongo-database-pvc
+
 
 ---
 apiVersion: v1
@@ -47,6 +54,31 @@ spec:
   selector:
     app: mongo-database
   ports:
-  - protocol: TCP
-    port: 27017
-    targetPort: 27017
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: mongo-database-pv
+# spec:
+#   capacity:
+#     storage: 1Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   hostPath:
+#     path: "/mnt/data/mongo"  # For local testing (Minikube). For cloud, use a storage class.
+
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: mongo-database-pvc
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 1Gi

@@ -6,6 +6,12 @@ metadata:
     app: mongo-express
 spec:
   replicas: 1
+  revisionHistoryLimit: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: mongo-express

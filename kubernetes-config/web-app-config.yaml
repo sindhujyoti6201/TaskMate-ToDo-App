@@ -6,6 +6,12 @@ metadata:
     app: taskmate-todo-app
 spec:
   replicas: 2
+  revisionHistoryLimit: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: taskmate-todo-app
@@ -16,7 +22,7 @@ spec:
     spec:
       containers:
       - name: web-app
-        image: sidutta/taskmate-todo-app:v1
+        image: sidutta/taskmate-app:v3
         ports:
         - containerPort: 5000
         env:
@@ -43,18 +49,16 @@ spec:
 
 
 ---
-# This is the service for the webapp
 apiVersion: v1
 kind: Service
 metadata:
   name: web-app-service
 spec:
   selector:
-    matchLabels:
-      app: taskmate-todo-app
-    ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 5000
-      nodePort: 30001
+    app: taskmate-todo-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+    nodePort: 30001
   type: LoadBalancer
